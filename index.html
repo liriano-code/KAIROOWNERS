@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>KAIRO STREETWEAR | OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #050505; --accent: #ffffff; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            color: #eee; 
+            -webkit-tap-highlight-color: transparent;
+            line-height: 1.5;
+        }
+
+        /* Glassmorphism Refinado */
+        .glass { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
+
+        /* Nav refinada para Mobile */
+        .nav-link { 
+            font-size: 10px; 
+            letter-spacing: 0.2em; 
+            text-transform: uppercase; 
+            color: #555; 
+            transition: 0.3s; 
+            padding: 12px 4px; 
+            border-bottom: 2px solid transparent; 
+            white-space: nowrap;
+        }
+        .nav-link.active { color: #fff; border-bottom: 2px solid #fff; }
+
+        /* Botones y Touch Targets */
+        .btn-black { 
+            background: #fff; 
+            color: #000; 
+            font-weight: 600; 
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-black:active { transform: scale(0.96); opacity: 0.9; }
+
+        /* Inputs Optimizados para Móvil */
+        input, select { 
+            background: rgba(255,255,255,0.05) !important; 
+            border: 1px solid rgba(255,255,255,0.1) !important; 
+            color: white !important; 
+            font-size: 16px !important; /* Evita zoom automático en iOS */
+            padding: 14px !important;
+            border-radius: 12px !important;
+            width: 100%;
+        }
+        input:focus { outline: none; border-color: rgba(255,255,255,0.3) !important; }
+
+        /* Ticket Font */
+        .ticket-font { font-family: 'Courier New', Courier, monospace; }
+        
+        /* Ocultar Scrollbar */
+        ::-webkit-scrollbar { display: none; }
+
+        /* Animaciones suaves */
+        .tab-content { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Ajustes específicos para pantallas pequeñas */
+        @media (max-width: 640px) {
+            .main-container { padding: 1.25rem; }
+            .stat-card { padding: 1.5rem; }
+            .header-content { padding: 0 1.25rem; }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-10">
+
+    <div id="login-screen" class="fixed inset-0 z-[500] flex items-center justify-center bg-[#050505] p-8">
+        <div class="w-full max-w-xs text-center">
+            <h1 class="text-4xl font-extralight tracking-[0.8em] mb-12 text-white">KAIRO</h1>
+            <input type="password" id="login-pass" placeholder="PASSCODE" class="text-center tracking-[0.5em] uppercase">
+            <button onclick="checkLogin()" class="w-full mt-6 py-4 btn-black text-[10px] tracking-widest uppercase rounded-xl">Identificarse</button>
+        </div>
+    </div>
+
+    <div id="main-app" class="hidden">
+        <header class="sticky top-0 z-[100] bg-[#050505]/90 backdrop-blur-xl border-b border-white/5">
+            <div class="max-w-4xl mx-auto header-content">
+                <div class="flex justify-between items-center h-16">
+                    <span class="text-[9px] tracking-[0.5em] font-bold opacity-40">KAIRO OS 2.0</span>
+                    <button onclick="location.reload()" class="text-[8px] uppercase opacity-40 tracking-widest">Cerrar Sesión</button>
+                </div>
+                <nav class="flex justify-between gap-4 overflow-x-auto pb-1">
+                    <button onclick="switchTab('dash-tab')" id="link-dash" class="nav-link active">Status</button>
+                    <button onclick="switchTab('inv-tab')" id="link-inv" class="nav-link">Stock</button>
+                    <button onclick="switchTab('orders-tab')" id="link-orders" class="nav-link">Orders</button>
+                    <button onclick="switchTab('logs-tab')" id="link-logs" class="nav-link">Logs</button>
+                </nav>
+            </div>
+        </header>
+
+        <main class="max-w-4xl mx-auto main-container mt-6 px-6">
+            
+            <div id="dash-tab" class="tab-content space-y-4">
+                <div class="glass p-8 rounded-[2rem] stat-card shadow-2xl">
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Net Profit</p>
+                    <p id="stat-profit" class="text-5xl font-extralight text-white tracking-tighter">$0.00</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass p-6 rounded-[1.5rem]">
+                        <p class="text-[9px] text-gray-500 uppercase tracking-widest mb-1">Asset Value</p>
+                        <p id="stat-inv" class="text-xl font-light">$0.00</p>
+                    </div>
+                    <div class="glass p-6 rounded-[1.5rem]">
+                        <p class="text-[9px] text-gray-500 uppercase tracking-widest mb-1">Movements</p>
+                        <p id="stat-logs" class="text-xl font-light">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="inv-tab" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-extralight uppercase tracking-widest">Inventory</h3>
+                    <button onclick="openModal('add-modal')" class="btn-black px-5 py-2 rounded-full text-[9px] uppercase tracking-widest">New Design</button>
+                </div>
+                <div id="inv-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
+            </div>
+
+            <div id="orders-tab" class="tab-content hidden space-y-8">
+                <button onclick="openOrderModal()" class="w-full btn-black py-5 rounded-2xl text-[10px] tracking-widest uppercase shadow-lg">Create New Order</button>
+                
+                <div class="space-y-6">
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 px-1">
+                            <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse"></span>
+                            <h4 class="text-[9px] uppercase tracking-[0.3em] text-yellow-500/80 font-bold">Pending Workflow</h4>
+                        </div>
+                        <div id="list-pending" class="space-y-3"></div>
+                    </div>
+
+                    <div class="space-y-3 pt-4">
+                        <div class="flex items-center gap-2 px-1">
+                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                            <h4 class="text-[9px] uppercase tracking-[0.3em] text-green-500/80 font-bold">Completed Sales</h4>
+                        </div>
+                        <div id="list-done" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="logs-tab" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-extralight uppercase tracking-widest">History</h3>
+                    <button onclick="resetAll()" class="text-[8px] text-red-500/50 uppercase font-bold border border-red-500/10 px-3 py-1 rounded-full">Reset OS</button>
+                </div>
+                <div id="log-list" class="space-y-3"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="add-modal" class="hidden fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/90 p-0 sm:p-4">
+        <div class="glass w-full max-w-md p-8 sm:p-10 rounded-t-[2.5rem] sm:rounded-[2.5rem] space-y-5">
+            <h3 class="text-center text-[10px] font-bold tracking-[0.5em] uppercase text-white/40">New Stock Item</h3>
+            <div class="space-y-4">
+                <input type="file" id="inp-img" class="text-[10px] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-semibold file:bg-white/10 file:text-white">
+                <input type="text" id="inp-name" placeholder="DESIGN NAME" class="uppercase">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" id="inp-cost" placeholder="COST $">
+                    <input type="number" id="inp-price" placeholder="RETAIL $">
+                </div>
+                <input type="number" id="inp-stock" placeholder="UNITS">
+            </div>
+            <div class="flex gap-4 pt-4 pb-6 sm:pb-0">
+                <button onclick="closeModal('add-modal')" class="flex-1 py-4 text-[10px] uppercase text-gray-500">Cancel</button>
+                <button onclick="saveInv()" class="flex-1 btn-black py-4 rounded-xl text-[10px] uppercase">Add to Stock</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="order-modal" class="hidden fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/90 p-0 sm:p-4">
+        <div class="glass w-full max-w-md p-8 sm:p-10 rounded-t-[2.5rem] sm:rounded-[2.5rem] max-h-[92vh] overflow-y-auto space-y-6">
+            <h3 class="text-center text-[10px] font-bold tracking-[0.5em] uppercase text-white/40">Order Details</h3>
+            <input type="text" id="ord-client" placeholder="CLIENT NAME" class="uppercase">
+            
+            <div id="ord-items-preview" class="space-y-2"></div>
+
+            <div class="pt-4 border-t border-white/5 space-y-3">
+                <select id="sel-inv" class="text-sm uppercase"></select>
+                <div class="flex gap-2">
+                    <input type="text" id="man-name" placeholder="CUSTOM ITEM" class="flex-1 text-[10px] uppercase">
+                    <input type="number" id="man-price" placeholder="$" class="w-24 text-[10px]">
+                </div>
+                <button onclick="addToTemp()" class="w-full py-3 text-[9px] uppercase font-bold border border-white/10 rounded-xl bg-white/5">+ Add to Cart</button>
+            </div>
+
+            <div class="flex justify-between items-center py-4 border-t border-white/5">
+                <span class="text-[10px] text-gray-500 uppercase tracking-widest">Total</span>
+                <span id="ord-total-ui" class="text-4xl font-extralight text-white tracking-tighter">$0.00</span>
+            </div>
+
+            <div class="flex gap-4 pb-6 sm:pb-0">
+                <button onclick="closeModal('order-modal')" class="flex-1 py-4 text-[10px] uppercase text-gray-500">Close</button>
+                <button onclick="saveOrder()" class="flex-1 btn-black py-4 rounded-xl text-[10px] uppercase">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="ticket-modal" class="hidden fixed inset-0 z-[300] flex items-center justify-center bg-black/95 p-6">
+        <div class="w-full max-w-xs bg-white text-black p-8 shadow-2xl ticket-font rounded-sm scale-95 sm:scale-100">
+            <div class="text-center border-b border-black/10 pb-6 mb-6">
+                <h2 class="text-2xl font-bold tracking-tighter">KAIRO</h2>
+                <p class="text-[8px] tracking-[0.3em] mt-1 uppercase opacity-60">Apparel & Design</p>
+            </div>
+            <div class="text-[10px] space-y-1 mb-6">
+                <p id="t-date" class="opacity-50"></p>
+                <p id="t-client" class="font-bold tracking-tight"></p>
+            </div>
+            <div id="t-items" class="text-[10px] space-y-2 border-b border-black/10 pb-6 mb-6"></div>
+            <div class="flex justify-between font-bold text-lg mb-8">
+                <span>TOTAL:</span>
+                <span id="t-total"></span>
+            </div>
+            <p class="text-[7px] text-center opacity-40 uppercase tracking-widest">Digital Receipt - Kairo OS</p>
+            <button onclick="closeModal('ticket-modal')" class="mt-8 w-full border border-black py-3 text-[10px] font-bold uppercase tracking-widest">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        // --- MOTOR DE DATOS (Preservado) ---
+        let inv = JSON.parse(localStorage.getItem('k_inv')) || [];
+        let ords = JSON.parse(localStorage.getItem('k_ord')) || [];
+        let logs = JSON.parse(localStorage.getItem('k_log')) || [];
+        let stats = JSON.parse(localStorage.getItem('k_sts')) || { prof: 0 };
+        let temp = [];
+
+        function checkLogin() {
+            if(document.getElementById('login-pass').value.toUpperCase() === "RL") {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                renderAll();
+            }
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById('link-' + id.split('-')[0]).classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.body.style.overflow = 'auto'; }
+
+        function saveInv() {
+            const name = document.getElementById('inp-name').value;
+            const cost = parseFloat(document.getElementById('inp-cost').value);
+            const price = parseFloat(document.getElementById('inp-price').value);
+            const stock = parseInt(document.getElementById('inp-stock').value);
+            const file = document.getElementById('inp-img').files[0];
+            if(!name || !file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                inv.push({ id: Date.now(), name, cost, price, stock, img: e.target.result });
+                addLog('STOCK', `DISEÑO AÑADIDO: ${name}`);
+                renderAll();
+                closeModal('add-modal');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderInv() {
+            document.getElementById('inv-grid').innerHTML = inv.map(i => `
+                <div class="glass p-3 rounded-[1.5rem] relative group">
+                    <img src="${i.img}" class="h-32 w-full object-cover rounded-xl mb-3 opacity-90 group-hover:opacity-100 transition-all">
+                    <h4 class="text-[10px] font-bold uppercase truncate px-1 text-white">${i.name}</h4>
+                    <div class="flex justify-between mt-1 px-1 text-[9px] text-gray-500">
+                        <span>STK: ${i.stock}</span>
+                        <span class="text-white">$${i.price}</span>
+                    </div>
+                    <button onclick="delInv(${i.id})" class="absolute top-2 right-2 bg-black/40 text-white/40 w-6 h-6 rounded-full flex items-center justify-center text-xs">×</button>
+                </div>
+            `).join('');
+            
+            const sel = document.getElementById('sel-inv');
+            sel.innerHTML = '<option value="">BUSCAR EN STOCK...</option>' + 
+                inv.filter(i => i.stock > 0).map(i => `<option value="${i.id}">${i.name} ($${i.price})</option>`).join('');
+        }
+
+        function openOrderModal() {
+            temp = [];
+            document.getElementById('ord-client').value = "";
+            renderTemp();
+            openModal('order-modal');
+        }
+
+        function addToTemp() {
+            const id = document.getElementById('sel-inv').value;
+            const mN = document.getElementById('man-name').value;
+            const mP = parseFloat(document.getElementById('man-price').value);
+            
+            if(id) {
+                const i = inv.find(x => x.id == id);
+                temp.push({ name: i.name, price: i.price, cost: i.cost, invId: i.id });
+            } else if(mN && mP) {
+                temp.push({ name: mN, price: mP, cost: 0, invId: null });
+            }
+            renderTemp();
+            document.getElementById('sel-inv').value = "";
+            document.getElementById('man-name').value = "";
+            document.getElementById('man-price').value = "";
+        }
+
+        function renderTemp() {
+            document.getElementById('ord-items-preview').innerHTML = temp.map((it, i) => `
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl text-[10px]">
+                    <span class="uppercase tracking-widest text-white/80">${it.name}</span>
+                    <button onclick="temp.splice(${i},1);renderTemp()" class="text-red-500 font-bold">$${it.price} ×</button>
+                </div>
+            `).join('');
+            const t = temp.reduce((s, x) => s + x.price, 0);
+            document.getElementById('ord-total-ui').innerText = `$${t.toFixed(2)}`;
+        }
+
+        function saveOrder() {
+            const client = document.getElementById('ord-client').value;
+            if(!client || !temp.length) return;
+            ords.unshift({ id: Date.now(), client, items: [...temp], total: temp.reduce((s,x)=>s+x.price,0), status: 'Pendiente', date: new Date().toLocaleDateString() });
+            addLog('ORDER', `${client}`);
+            renderAll();
+            closeModal('order-modal');
+        }
+
+        function finalize(id) {
+            const o = ords.find(x => x.id === id);
+            if(o) {
+                o.status = 'Finalizado';
+                let gain = 0;
+                o.items.forEach(it => {
+                    if(it.invId) {
+                        const i = inv.find(x => x.id === it.invId);
+                        if(i) { i.stock--; gain += (i.price - i.cost); }
+                    } else { gain += it.price; }
+                });
+                stats.prof += gain;
+                addLog('VENTA', `${o.client} (+$${gain.toFixed(2)})`, id, gain);
+                renderAll();
+            }
+        }
+
+        function renderOrds() {
+            const card = (o) => `
+                <div class="glass p-6 rounded-[2rem] border border-white/5 space-y-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-[7px] text-gray-600 uppercase tracking-widest mb-1">${o.date}</p>
+                            <h4 class="text-[10px] font-bold text-white uppercase tracking-widest">${o.client}</h4>
+                        </div>
+                        <span class="text-xl font-light">$${o.total.toFixed(2)}</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="viewTicket(${o.id})" class="flex-1 bg-white/5 text-white/30 text-[9px] py-3 rounded-xl font-bold uppercase">Ticket</button>
+                        ${o.status === 'Pendiente' ? 
+                        `<button onclick="finalize(${o.id})" class="flex-[2] btn-black text-[9px] py-3 rounded-xl uppercase">Finalizar</button>` : 
+                        `<span class="flex-[2] text-center bg-green-500/10 text-green-500 text-[9px] py-3 rounded-xl font-bold uppercase flex items-center justify-center">Cobrado</span>`}
+                        <button onclick="delOrder(${o.id})" class="px-3 opacity-20">×</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('list-pending').innerHTML = ords.filter(x => x.status === 'Pendiente').map(card).join('');
+            document.getElementById('list-done').innerHTML = ords.filter(x => x.status === 'Finalizado').map(card).join('');
+        }
+
+        function addLog(type, msg, ordId = null, gain = 0) {
+            logs.unshift({ id: Date.now(), type, msg, ordId, gain, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+        }
+
+        function renderLogs() {
+            document.getElementById('log-list').innerHTML = logs.map(l => `
+                <div class="glass p-4 rounded-2xl flex justify-between items-center">
+                    <div class="max-w-[70%]">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-[7px] font-bold bg-white/10 px-2 py-0.5 rounded text-gray-400 uppercase tracking-widest">${l.type}</span>
+                            <span class="text-[7px] text-gray-600 font-mono">${l.time}</span>
+                        </div>
+                        <p class="text-[10px] text-gray-200 uppercase truncate">${l.msg}</p>
+                    </div>
+                    ${l.type === 'VENTA' ? `<button onclick="revertVenta(${l.id})" class="text-[8px] text-red-500 font-bold border border-red-500/10 px-3 py-1.5 rounded-lg">Revertir</button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function revertVenta(logId) {
+            if(!confirm("¿Revertir esta venta? Se devolverá el stock.")) return;
+            const log = logs.find(x => x.id === logId);
+            const o = ords.find(x => x.id === log.ordId);
+            if(o) {
+                o.status = 'Pendiente';
+                o.items.forEach(it => { if(it.invId) { const i = inv.find(x => x.id === it.invId); if(i) i.stock++; } });
+                stats.prof -= log.gain;
+                logs = logs.filter(x => x.id !== logId);
+                renderAll();
+            }
+        }
+
+        function viewTicket(id) {
+            const o = ords.find(x => x.id === id);
+            document.getElementById('t-date').innerText = `DATE: ${o.date}`;
+            document.getElementById('t-client').innerText = `CLIENT: ${o.client}`;
+            document.getElementById('t-items').innerHTML = o.items.map(i => `<div class="flex justify-between"><span>${i.name}</span><span>$${i.price.toFixed(2)}</span></div>`).join('');
+            document.getElementById('t-total').innerText = `$${o.total.toFixed(2)}`;
+            openModal('ticket-modal');
+        }
+
+        function delInv(id) { if(confirm("¿Eliminar del stock?")) { inv = inv.filter(x => x.id !== id); renderAll(); } }
+        function delOrder(id) { if(confirm("¿Eliminar este registro?")) { ords = ords.filter(x => x.id !== id); renderAll(); } }
+        function resetAll() { if(confirm("ADVERTENCIA: ¿BORRAR TODOS LOS DATOS?")) { localStorage.clear(); location.reload(); } }
+
+        function renderAll() {
+            const invVal = inv.reduce((s, x) => s + (x.cost * x.stock), 0);
+            renderInv(); renderOrds(); renderLogs();
+            document.getElementById('stat-profit').innerText = `$${stats.prof.toFixed(2)}`;
+            document.getElementById('stat-inv').innerText = `$${invVal.toFixed(2)}`;
+            document.getElementById('stat-logs').innerText = logs.length;
+            localStorage.setItem('k_inv', JSON.stringify(inv));
+            localStorage.setItem('k_ord', JSON.stringify(ords));
+            localStorage.setItem('k_log', JSON.stringify(logs));
+            localStorage.setItem('k_sts', JSON.stringify(stats));
+        }
+    </script>
+</body>
+</html>
